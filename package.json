@@ -1,0 +1,17 @@
+{
+  "name": "voters",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "mavdavis",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx hardhat test",
+    "compile": "npx hardhat compile"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "hardhat": "^2.26.1"
+  }
+}
