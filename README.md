@@ -1,13 +1,15 @@
-# Sample Hardhat Project
+Voter dApp Core Concepts:
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+Wallet integration (ethers.js + MetaMask)
 
-Try running some of the following tasks:
+Voting contract (Solidity)
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.ts
-```
+Deploying with Hardhat
+
+Event listening
+
+Preventing double voting
+
+Time-bound actions (voting window)
+
+Role-based logic (admin vs voter)
