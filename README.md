@@ -1,3 +1,5 @@
+we will consider DAO Voting to Approve IDs
+
 Voter dApp Core Concepts:
 
 Wallet integration (ethers.js + MetaMask)
