@@ -51,9 +51,9 @@ contract Voter is Initializable, OwnableUpgradeable {
     }
 
     function castVote(uint256 _id) public payable whenNotPaused returns (bool) {
+        if (msg.value < 0.01 ether) revert InvalidVoteAmount(msg.value);
         if (!isAcceptableId[_id]) revert InvalidVoteId(_id);
         if (votes[_id] != address(0)) revert VoteAlreadyCast(_id);
-        if (msg.value < 0.01 ether) revert InvalidVoteAmount(msg.value);
 
         votes[_id] = msg.sender;
         emit Voter__Cast(_id, msg.sender);
