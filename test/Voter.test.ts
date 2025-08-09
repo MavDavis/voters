@@ -2,13 +2,6 @@ import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
 import { Contract, Signer } from "ethers";
 import { Voter } from "../typechain-types";
-/**
-| Feature                 | What to test                                        |
-| 🛠 Owner functions      | Only owner can `add/remove ID`, `pause`, `withdraw` |
-| 🔐 Reentrancy & Pausing | Test `nonReentrant` and `whenNotPaused` logic       |
-| 💸 Withdraw             | ETH is transferred to owner and event is emitted    |
-| ⛔ Fallback              | Contract can accept ETH via fallback                |
-*/
 
 describe("Voter Contract", function () {
   let voter: Voter;
