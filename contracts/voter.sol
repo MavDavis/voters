@@ -63,6 +63,31 @@ contract Voter is Initializable, OwnableUpgradeable {
     function getVote(uint256 _id) public view returns (address) {
         return votes[_id];
     }
+ function getAllVotes(uint256 totalIds) public view returns (address[] memory) {
+    uint256 count = 0;
+
+    // First pass: count how many acceptable IDs
+    for (uint256 i = 0; i < totalIds; i++) {
+        if (isAcceptableId[i]) {
+            count++;
+        }
+    }
+
+    // Allocate array of correct size
+    address[] memory allVotes = new address[](count);
+    uint256 index = 0;
+
+    // Second pass: fill array with vote addresses
+    for (uint256 i = 0; i < totalIds; i++) {
+        if (isAcceptableId[i]) {
+            allVotes[index] = votes[i];
+            index++;
+        }
+    }
+
+    return allVotes;
+}
+
 
     function addAcceptableId(uint256 _id) external onlyOwner {
         isAcceptableId[_id] = true;
