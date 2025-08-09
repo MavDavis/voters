@@ -1,6 +1,5 @@
-
 import { expect } from "chai";
-import  { ethers,upgrades } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import { Contract, Signer } from "ethers";
 import { Voter } from "../typechain-types";
 /**
@@ -12,23 +11,24 @@ import { Voter } from "../typechain-types";
 */
 
 describe("Voter Contract", function () {
-let voter: Voter;
-let owner: Signer;
-let user1: Signer;
+  let voter: Voter;
+  let owner: Signer;
+  let user1: Signer;
 
-beforeEach(async () => {
-  [owner, user1] = await ethers.getSigners();
-  const Voter = await ethers.getContractFactory("Voter");
-  voter = await upgrades.deployProxy(Voter, [], {
-    initializer: "initialize",
-  }) as unknown as Voter;
-});
+  beforeEach(async () => {
+    [owner, user1] = await ethers.getSigners();
+    const Voter = await ethers.getContractFactory("Voter");
+    voter = (await upgrades.deployProxy(Voter, [], {
+      initializer: "initialize",
+    })) as unknown as Voter;
+  });
 
   it("should allow only valid id to be cast on vote", async function () {
     await expect(
       voter.connect(user1).castVote(4, { value: ethers.parseEther("0.01") })
-    ).to.emit(voter, "Voter__Cast").withArgs(4,user1.getAddress());
-    
+    )
+      .to.emit(voter, "Voter__Cast")
+      .withArgs(4, user1.getAddress());
   });
   it("should not allow an invalid id to be cast on vote", async function () {
     await expect(
@@ -40,12 +40,38 @@ beforeEach(async () => {
       voter.castVote(1, { value: ethers.parseEther("0.001") })
     ).to.be.revertedWithCustomError(voter, "InvalidVoteAmount");
   });
-  it("should not allow an id to vote twice",async function () {
-  })
-  it("should allow owner to withdraw funds", async function () {});
-  it("should not allow non-owner to withdraw funds", async function () {});
-  it("should return voters when getter for voters is called", async function () {});
-  it("should allow owner to add an id", async function () {})
+  it("should not allow an id to vote twice", async function () {
+    await voter
+      .connect(user1)
+      .castVote(2, { value: ethers.parseEther("0.01") });
+    await expect(
+      voter.connect(user1).castVote(2, { value: ethers.parseEther("0.01") })
+    ).to.be.revertedWithCustomError(voter, "VoteAlreadyCast");
+  });
+  it("should allow owner to withdraw funds", async function () {
+    await voter
+      .connect(user1)
+      .castVote(1, { value: ethers.parseEther("0.01") });
+    await expect(voter.withdraw())
+      .to.emit(voter, "Withdrawn")
+      .withArgs(ethers.parseEther("0.01"));
+  });
+  it("should not allow non-owner to withdraw funds", async function () {
+    await voter
+      .connect(user1)
+      .castVote(1, { value: ethers.parseEther("0.01") });
+    await expect(voter.connect(user1).withdraw())
+      .to.be.revertedWithCustomError(voter, "OwnableUnauthorizedAccount")
+      .withArgs(user1.getAddress());
+  });
+  it("should return voters when getter for voters is called", async function () {
+    await voter
+      .connect(user1)
+      .castVote(2, { value: ethers.parseEther("0.01") });
+    const voters = await voter.getAllVotes(10);
+    expect(voters[1]).to.equal(await user1.getAddress());
+  });
+  it("should allow owner to add an id", async function () {});
   it("should allow owner to remove an id", async function () {});
   it("should not allow non-owner to add an id", async function () {});
   it("should not allow non-owner to remove an id", async function () {});
