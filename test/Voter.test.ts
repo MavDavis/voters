@@ -71,10 +71,40 @@ describe("Voter Contract", function () {
     const voters = await voter.getAllVotes(10);
     expect(voters[1]).to.equal(await user1.getAddress());
   });
-  it("should allow owner to add an id", async function () {});
-  it("should allow owner to remove an id", async function () {});
-  it("should not allow non-owner to add an id", async function () {});
-  it("should not allow non-owner to remove an id", async function () {});
-  it("should pause the contract when paused", async function () {});
-  it("should not allow voting when paused", async function () {});
+  it("should allow owner to add acceptable id", async function () {
+    await expect(voter.addAcceptableId(7))
+      .to.emit(voter, "VoteIdAdded")
+      .withArgs(7);
+    const newVote = await voter
+      .connect(user1)
+      .castVote(7, { value: ethers.parseEther("0.01") });
+    expect(newVote)
+      .to.emit(voter, "Voter__Cast")
+      .withArgs(7, await user1.getAddress());
+  });
+  it("should allow owner to remove acceptable id", async function () {
+    await voter.removeAcceptableId(2);
+    await expect(
+      voter.connect(user1).castVote(2, { value: ethers.parseEther("0.01") })
+    ).to.be.revertedWithCustomError(voter, "InvalidVoteId");
+  });
+  it("should not allow non-owner to add an id", async function () {
+    await expect(
+      voter.connect(user1).addAcceptableId(8)
+    ).to.be.revertedWithCustomError(voter, "OwnableUnauthorizedAccount");
+  });
+  it("should not allow non-owner to remove an id", async function () {
+    await expect(
+      voter.connect(user1).removeAcceptableId(3)
+    ).to.be.revertedWithCustomError(voter, "OwnableUnauthorizedAccount");
+  });
+  it("should pause the contract when paused", async function () {
+    await expect(voter.pause())
+      .to.emit(voter, "Paused");
+    expect(await voter.paused()).to.be.true;
+  });
+  it("should not allow voting when paused", async function () {
+    await voter.pause();
+    expect(await voter.connect(user1).castVote(1, { value: ethers.parseEther("0.01") })).to.be.revertedWith("Voting is paused");
+  });
 });
