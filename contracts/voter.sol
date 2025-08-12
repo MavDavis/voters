@@ -38,16 +38,14 @@ contract Voter is Initializable, OwnableUpgradeable {
         locked = false;
     }
 
-    function initialize() public initializer {
+    function initialize(uint256[] memory ids) public initializer {
         __Ownable_init(msg.sender);
         paused = false;
         locked = false;
 
-        isAcceptableId[1] = true;
-        isAcceptableId[2] = true;
-        isAcceptableId[3] = true;
-        isAcceptableId[4] = true;
-        isAcceptableId[5] = true;
+        for (uint256 i = 0; i < ids.length; i++) {
+            isAcceptableId[ids[i]] = true;
+        }
     }
 
     function castVote(uint256 _id) public payable whenNotPaused returns (bool) {

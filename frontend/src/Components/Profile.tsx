@@ -1,6 +1,6 @@
 import { useReadContract, useWriteContract } from "wagmi"
 import { VOTER_CONTRACT_ADDRESS, VOTER_CONTRACT_ABI } from "../constants"
-
+import {ConnectWallet} from "./buttonComponent.tsx"
 export function Profile() {
   // Read all votes (example: for 5 IDs)
   const { data: allVotes } = useReadContract({
@@ -24,6 +24,7 @@ export function Profile() {
 
   return (
     <div>
+      <ConnectWallet/>
       <h2>Votes:</h2>
       <ul>
         {allVotes?.map((voter, idx) => (
