@@ -1,36 +1,75 @@
-import { useReadContract, useWriteContract } from "wagmi"
+import { 
+  useReadContract, 
+  useWriteContract, 
+  useWaitForTransactionReceipt, 
+  useWatchContractEvent 
+} from "wagmi"
 import { VOTER_CONTRACT_ADDRESS, VOTER_CONTRACT_ABI } from "../constants"
-import {ConnectWallet} from "./buttonComponent.tsx"
+import { ConnectWallet } from "./buttonComponent.tsx"
+import { useState } from "react"
+
 export function Profile() {
-  // Read all votes (example: for 5 IDs)
-  const { data: allVotes } = useReadContract({
+  const [hash, setHash] = useState<`0x${string}` | undefined>()
+
+  // Read all votes
+  const { data: allVotes, refetch } = useReadContract({
     address: VOTER_CONTRACT_ADDRESS,
     abi: VOTER_CONTRACT_ABI,
     functionName: "getAllVotes",
     args: [5],
   })
 
-  const { writeContract } = useWriteContract()
+  // Write to contract
+  const { writeContractAsync } = useWriteContract()
 
-  const handleVote = (id: number) => {
-    writeContract({
-      address: VOTER_CONTRACT_ADDRESS,
-      abi: VOTER_CONTRACT_ABI,
-      functionName: "castVote",
-      args: [id],
-      value: BigInt(10 ** 16), // 0.01 ether in wei
-    })
+  // Track tx confirmation
+  const { isLoading, isSuccess } = useWaitForTransactionReceipt({
+    hash,
+  })
+
+  // Listen for VoteCast events
+  useWatchContractEvent({
+    address: VOTER_CONTRACT_ADDRESS,
+    abi: VOTER_CONTRACT_ABI,
+    eventName: "VoteCast",
+    onLogs(logs) {
+      console.log("VoteCast event:", logs)
+      refetch() // refresh votes list
+    },
+  })
+
+  // Trigger vote
+  const handleVote = async (id: number) => {
+    try {
+      const txHash = await writeContractAsync({
+        address: VOTER_CONTRACT_ADDRESS,
+        abi: VOTER_CONTRACT_ABI,
+        functionName: "castVote",
+        args: [id],
+        value: BigInt(10 ** 16),
+      })
+      setHash(txHash)
+    } catch (error) {
+      console.error("Vote transaction failed:", error)
+    }
   }
 
   return (
     <div>
-      <ConnectWallet/>
+      <ConnectWallet />
+
       <h2>Votes:</h2>
+      {isLoading && <p>Transaction pending...</p>}
+      {isSuccess && <p>Vote confirmed ✅</p>}
+
       <ul>
-         {/* @ts-ignore */}
+        {/* @ts-ignore */}
         {allVotes?.map((voter, idx) => (
           <li key={idx}>
-            ID {idx}: {voter === "0x0000000000000000000000000000000000000000" ? "No vote yet" : voter}
+            ID {idx}:{" "}
+            {voter === "0x0000000000000000000000000000000000000000"
+              ? "No vote yet"
+              : voter}
           </li>
         ))}
       </ul>
