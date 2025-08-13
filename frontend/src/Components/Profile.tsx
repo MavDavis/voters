@@ -27,6 +27,7 @@ export function Profile() {
       <ConnectWallet/>
       <h2>Votes:</h2>
       <ul>
+         {/* @ts-ignore */}
         {allVotes?.map((voter, idx) => (
           <li key={idx}>
             ID {idx}: {voter === "0x0000000000000000000000000000000000000000" ? "No vote yet" : voter}
