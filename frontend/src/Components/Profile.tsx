@@ -10,7 +10,7 @@ import { useState } from "react"
 
 export function Profile() {
   const [hash, setHash] = useState<`0x${string}` | undefined>()
-
+  const [idForVote, setIdForVote] = useState<number>(0)
   // Read all votes
   const { data: allVotes, refetch } = useReadContract({
     address: VOTER_CONTRACT_ADDRESS,
@@ -75,11 +75,19 @@ export function Profile() {
       </ul>
 
       <h3>Cast your vote:</h3>
-      {[1, 2, 3, 4, 5].map((id) => (
-        <button key={id} onClick={() => handleVote(id)}>
-          Vote for ID {id}
-        </button>
-      ))}
+      <form action="" onSubmit={(e) => {
+        e.preventDefault();
+        handleVote(idForVote)
+      }}>
+
+        <input
+          type="number"
+          value={idForVote}
+          onChange={(e) => setIdForVote(Number(e.target.value))}
+        />
+        <br />
+      <button style={{marginTop:10}}>Vote {idForVote}</button>
+      </form>
     </div>
   )
 }
