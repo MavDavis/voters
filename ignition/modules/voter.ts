@@ -3,7 +3,6 @@ import { networkConfig } from "./helperConfig.deploy";
 import hre from "hardhat";
 
 export default buildModule("voter", (m) => {
-  // Use Hardhat's runtime environment for chainId
   const chainId = hre.network.config.chainId ?? 31337;
 
   const config = networkConfig[chainId as keyof typeof networkConfig];
