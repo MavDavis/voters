@@ -12,7 +12,6 @@ export default buildModule("voter", (m) => {
 
   const newVoterInstance = m.contract("Voter");
 
-  // Pass acceptableVoteIds to initialize
   m.call(newVoterInstance, "initialize", [config.acceptableVoteIds]);
 
   // Optionally, addAcceptableId calls if needed (but likely redundant if initialize sets them)
